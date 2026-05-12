@@ -1,60 +1,634 @@
-export type WordPuzzle = {
-  id: string;
-  /** Full word in kana */
-  answer: string[];
-  /** Hepburn-style reading in Latin letters */
-  romaji: string;
-  /** Indonesian gloss for parents/kids */
-  meaningId: string;
-};
+import type { WordCategory, WordPuzzle } from "./wordTypes";
+import {
+  jlptCsvN1Puzzles,
+  jlptCsvN2Puzzles,
+  jlptCsvN3Puzzles,
+  jlptCsvN4Puzzles,
+  jlptCsvN5Puzzles,
+} from "./jlptCsvGenerated";
 
-export const wordPuzzles: WordPuzzle[] = [
+export type { WordCategory, WordPuzzle } from "./wordTypes";
+
+function dedupePuzzlesFirstWins(items: WordPuzzle[]): WordPuzzle[] {
+  const seen = new Set<string>();
+  const out: WordPuzzle[] = [];
+  for (const p of items) {
+    const key = `${p.category}:${p.answer.join("")}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(p);
+  }
+  return out;
+}
+
+const handCurated: WordPuzzle[] = [
+  // --- Kata tematik (nama benda / alam) ---
   {
     id: "sakura",
+    category: "kata",
     answer: ["さ", "く", "ら"],
     romaji: "sa-ku-ra",
     meaningId: "Bunga sakura",
   },
   {
     id: "neko",
+    category: "kata",
     answer: ["ね", "こ"],
     romaji: "ne-ko",
     meaningId: "Kucing",
   },
   {
     id: "inu",
+    category: "kata",
     answer: ["い", "ぬ"],
     romaji: "i-nu",
     meaningId: "Anjing",
   },
   {
     id: "mizu",
+    category: "kata",
     answer: ["み", "ず"],
     romaji: "mi-zu",
     meaningId: "Air",
   },
   {
     id: "pan",
+    category: "kata",
     answer: ["パ", "ン"],
     romaji: "pan",
-    meaningId: "Roti (dari bahasa Portugis)",
+    meaningId: "Roti (kata serapan)",
   },
   {
     id: "isu",
+    category: "kata",
     answer: ["い", "す"],
     romaji: "i-su",
     meaningId: "Kursi",
   },
   {
     id: "ringo",
+    category: "kata",
     answer: ["り", "ん", "ご"],
     romaji: "rin-go",
     meaningId: "Apel",
   },
   {
     id: "hana",
+    category: "kata",
     answer: ["は", "な"],
     romaji: "ha-na",
     meaningId: "Bunga",
   },
+  {
+    id: "taiyo",
+    category: "kata",
+    answer: ["た", "い", "よ", "う"],
+    romaji: "tai-yō",
+    meaningId: "Matahari",
+  },
+  {
+    id: "tsuki",
+    category: "kata",
+    answer: ["つ", "き"],
+    romaji: "tsu-ki",
+    meaningId: "Bulan",
+  },
+
+  // --- Kata & ungkapan sehari-hari ---
+  {
+    id: "ohayou",
+    category: "kata",
+    answer: ["お", "は", "よ", "う"],
+    romaji: "o-ha-yo-u",
+    meaningId: "Selamat pagi (informal)",
+  },
+  {
+    id: "konnichiwa",
+    category: "kata",
+    answer: ["こ", "ん", "に", "ち", "は"],
+    romaji: "kon-ni-chi-wa",
+    meaningId: "Halo / selamat siang",
+  },
+  {
+    id: "konbanwa",
+    category: "kata",
+    answer: ["こ", "ん", "ば", "ん", "は"],
+    romaji: "kon-ban-wa",
+    meaningId: "Selamat malam (sapaan)",
+  },
+  {
+    id: "arigatou",
+    category: "kata",
+    answer: ["あ", "り", "が", "と", "う"],
+    romaji: "a-ri-ga-tō",
+    meaningId: "Terima kasih",
+  },
+  {
+    id: "sayounara",
+    category: "kata",
+    answer: ["さ", "よ", "う", "な", "ら"],
+    romaji: "sa-yō-na-ra",
+    meaningId: "Sampai jumpa",
+  },
+  {
+    id: "hai",
+    category: "kata",
+    answer: ["は", "い"],
+    romaji: "hai",
+    meaningId: "Ya",
+  },
+  {
+    id: "iie",
+    category: "kata",
+    answer: ["い", "い", "え"],
+    romaji: "i-i-e",
+    meaningId: "Tidak",
+  },
+  {
+    id: "sumimasen",
+    category: "kata",
+    answer: ["す", "み", "ま", "せ", "ん"],
+    romaji: "su-mi-ma-sen",
+    meaningId: "Permisi / maaf",
+  },
+  {
+    id: "itadakimasu",
+    category: "kata",
+    answer: ["い", "た", "だ", "き", "ま", "す"],
+    romaji: "i-ta-da-ki-ma-su",
+    meaningId: "Sebelum makan (ucapan)",
+  },
+  {
+    id: "gomennasai",
+    category: "kata",
+    answer: ["ご", "め", "ん", "な", "さ", "い"],
+    romaji: "go-men-na-sai",
+    meaningId: "Maafkan aku",
+  },
+  {
+    id: "onegaishimasu",
+    category: "kata",
+    answer: ["お", "ね", "が", "い", "し", "ま", "す"],
+    romaji: "o-ne-gai-shi-ma-su",
+    meaningId: "Tolong / saya mohon",
+  },
+  {
+    id: "tabemono",
+    category: "kata",
+    answer: ["た", "べ", "も", "の"],
+    romaji: "ta-be-mo-no",
+    meaningId: "Makanan",
+  },
+  {
+    id: "nomimono",
+    category: "kata",
+    answer: ["の", "み", "も", "の"],
+    romaji: "no-mi-mo-no",
+    meaningId: "Minuman",
+  },
+
+  // --- Kalimat pendek / percakapan ---
+  {
+    id: "ogenkidesuka",
+    category: "kalimat",
+    answer: ["お", "げ", "ん", "き", "で", "す", "か"],
+    romaji: "o-gen-ki-de-su-ka",
+    meaningId: "Apa kabar? (formal sopan)",
+  },
+  {
+    id: "genkidesu",
+    category: "kalimat",
+    answer: ["げ", "ん", "き", "で", "す"],
+    romaji: "gen-ki-de-su",
+    meaningId: "Aku baik-baik saja",
+  },
+  {
+    id: "hajimemashite",
+    category: "kalimat",
+    answer: ["は", "じ", "め", "ま", "し", "て"],
+    romaji: "ha-ji-me-ma-shi-te",
+    meaningId: "Senang bertemu (perkenalan)",
+  },
+  {
+    id: "yoroshiku",
+    category: "kalimat",
+    answer: ["よ", "ろ", "し", "く"],
+    romaji: "yo-ro-shi-ku",
+    meaningId: "Salam penutup perkenalan (tolong bantuanku)",
+  },
+  {
+    id: "wakarimashita",
+    category: "kalimat",
+    answer: ["わ", "か", "り", "ま", "し", "た"],
+    romaji: "wa-ka-ri-ma-shi-ta",
+    meaningId: "Baik, aku mengerti",
+  },
+  {
+    id: "chotto",
+    category: "kalimat",
+    answer: ["ち", "ょ", "っ", "と"],
+    romaji: "chot-to",
+    meaningId: "Sebentar / sedikit",
+  },
+  {
+    id: "gambatte",
+    category: "kalimat",
+    answer: ["が", "ん", "ば", "っ", "て"],
+    romaji: "gan-ba-tte",
+    meaningId: "Semangat! (kata dukungan)",
+  },
+  {
+    id: "tanoshii",
+    category: "kalimat",
+    answer: ["た", "の", "し", "い"],
+    romaji: "ta-no-shi-i",
+    meaningId: "Menyenangkan / seru",
+  },
+  {
+    id: "suki",
+    category: "kalimat",
+    answer: ["す", "き"],
+    romaji: "su-ki",
+    meaningId: "Suka",
+  },
+  {
+    id: "daijoubu",
+    category: "kalimat",
+    answer: ["だ", "い", "じ", "ょ", "う", "ぶ"],
+    romaji: "dai-jō-bu",
+    meaningId: "Tidak apa-apa / aman",
+  },
+
+  // --- JLPT N5-style vocabulary (hiragana readings) ---
+  // Curated from common N5 lists such as Takoboto: https://takoboto.jp/lists/study/n5vocab/
+  {
+    id: "n5-au",
+    category: "kata",
+    answer: ["あ", "う"],
+    romaji: "a-u",
+    meaningId: "Bertemu (会う)",
+  },
+  {
+    id: "n5-aoi",
+    category: "kata",
+    answer: ["あ", "お", "い"],
+    romaji: "a-o-i",
+    meaningId: "Biru / hijau (warna) (青い)",
+  },
+  {
+    id: "n5-akai",
+    category: "kata",
+    answer: ["あ", "か", "い"],
+    romaji: "a-ka-i",
+    meaningId: "Merah (赤い)",
+  },
+  {
+    id: "n5-akaru",
+    category: "kata",
+    answer: ["あ", "か", "る", "い"],
+    romaji: "a-ka-ru-i",
+    meaningId: "Terang / cerah (明るい)",
+  },
+  {
+    id: "n5-aki",
+    category: "kata",
+    answer: ["あ", "き"],
+    romaji: "a-ki",
+    meaningId: "Musim gugur (秋)",
+  },
+  {
+    id: "n5-aku",
+    category: "kata",
+    answer: ["あ", "く"],
+    romaji: "a-ku",
+    meaningId: "Terbuka / kosong (開く・空く)",
+  },
+  {
+    id: "n5-akeru",
+    category: "kata",
+    answer: ["あ", "け", "る"],
+    romaji: "a-ke-ru",
+    meaningId: "Membuka (sesuatu) (開ける)",
+  },
+  {
+    id: "n5-asa",
+    category: "kata",
+    answer: ["あ", "さ"],
+    romaji: "a-sa",
+    meaningId: "Pagi (朝)",
+  },
+  {
+    id: "n5-asagohan",
+    category: "kata",
+    answer: ["あ", "さ", "ご", "は", "ん"],
+    romaji: "a-sa-go-han",
+    meaningId: "Sarapan (朝ごはん)",
+  },
+  {
+    id: "n5-asita",
+    category: "kata",
+    answer: ["あ", "し", "た"],
+    romaji: "a-shi-ta",
+    meaningId: "Besok (明日)",
+  },
+  {
+    id: "n5-asobu",
+    category: "kata",
+    answer: ["あ", "そ", "ぶ"],
+    romaji: "a-so-bu",
+    meaningId: "Bermain (遊ぶ)",
+  },
+  {
+    id: "n5-atataka",
+    category: "kata",
+    answer: ["あ", "た", "た", "か", "い"],
+    romaji: "a-ta-ta-ka-i",
+    meaningId: "Hangat (暖かい・温かい)",
+  },
+  {
+    id: "n5-atama",
+    category: "kata",
+    answer: ["あ", "た", "ま"],
+    romaji: "a-ta-ma",
+    meaningId: "Kepala (頭)",
+  },
+  {
+    id: "n5-atarashii",
+    category: "kata",
+    answer: ["あ", "た", "ら", "し", "い"],
+    romaji: "a-ta-ra-shi-i",
+    meaningId: "Baru (新しい)",
+  },
+  {
+    id: "n5-atsui",
+    category: "kata",
+    answer: ["あ", "つ", "い"],
+    romaji: "a-tsu-i",
+    meaningId: "Panas (cuaca) (暑い)",
+  },
+  {
+    id: "n5-ame",
+    category: "kata",
+    answer: ["あ", "め"],
+    romaji: "a-me",
+    meaningId: "Hujan (雨)",
+  },
+  {
+    id: "n5-aruku",
+    category: "kata",
+    answer: ["あ", "る", "く"],
+    romaji: "a-ru-ku",
+    meaningId: "Berjalan (歩く)",
+  },
+  {
+    id: "n5-arau",
+    category: "kata",
+    answer: ["あ", "ら", "う"],
+    romaji: "a-ra-u",
+    meaningId: "Mencuci (洗う)",
+  },
+  {
+    id: "n5-abunai",
+    category: "kata",
+    answer: ["あ", "ぶ", "な", "い"],
+    romaji: "a-bu-na-i",
+    meaningId: "Berbahaya (危ない)",
+  },
+  {
+    id: "n5-iu",
+    category: "kata",
+    answer: ["い", "う"],
+    romaji: "i-u",
+    meaningId: "Berkata (言う)",
+  },
+  {
+    id: "n5-ie",
+    category: "kata",
+    answer: ["い", "え"],
+    romaji: "i-e",
+    meaningId: "Rumah (家)",
+  },
+  {
+    id: "n5-ike",
+    category: "kata",
+    answer: ["い", "け"],
+    romaji: "i-ke",
+    meaningId: "Kolam / danau kecil (池)",
+  },
+  {
+    id: "n5-isha",
+    category: "kata",
+    answer: ["い", "し", "ゃ"],
+    romaji: "i-sha",
+    meaningId: "Dokter (医者)",
+  },
+  {
+    id: "n5-isogashii",
+    category: "kata",
+    answer: ["い", "そ", "が", "し", "い"],
+    romaji: "i-so-ga-shi-i",
+    meaningId: "Sibuk (忙しい)",
+  },
+  {
+    id: "n5-itai",
+    category: "kata",
+    answer: ["い", "た", "い"],
+    romaji: "i-ta-i",
+    meaningId: "Sakit (痛い)",
+  },
+  {
+    id: "n5-imouto",
+    category: "kata",
+    answer: ["い", "も", "う", "と"],
+    romaji: "i-mō-to",
+    meaningId: "Adik perempuan (妹)",
+  },
+  {
+    id: "n5-iku",
+    category: "kata",
+    answer: ["い", "く"],
+    romaji: "i-ku",
+    meaningId: "Pergi (行く)",
+  },
+  {
+    id: "n5-eigo",
+    category: "kata",
+    answer: ["え", "い", "ご"],
+    romaji: "e-i-go",
+    meaningId: "Bahasa Inggris (英語)",
+  },
+  {
+    id: "n5-kao",
+    category: "kata",
+    answer: ["か", "お"],
+    romaji: "ka-o",
+    meaningId: "Wajah (顔)",
+  },
+  {
+    id: "n5-kiku",
+    category: "kata",
+    answer: ["き", "く"],
+    romaji: "ki-ku",
+    meaningId: "Mendengar (聞く)",
+  },
+  {
+    id: "n5-kuru",
+    category: "kata",
+    answer: ["く", "る"],
+    romaji: "ku-ru",
+    meaningId: "Datang (来る)",
+  },
+  {
+    id: "n5-gohan",
+    category: "kata",
+    answer: ["ご", "は", "ん"],
+    romaji: "go-han",
+    meaningId: "Nasi / makan (ご飯)",
+  },
+  {
+    id: "n5-gyunyu",
+    category: "kata",
+    answer: ["ぎ", "ゅ", "う", "に", "ゅ", "う"],
+    romaji: "gyū-nyū",
+    meaningId: "Susu sapi (牛乳)",
+  },
+  {
+    id: "n5-sakana",
+    category: "kata",
+    answer: ["さ", "か", "な"],
+    romaji: "sa-ka-na",
+    meaningId: "Ikan (魚)",
+  },
+  {
+    id: "n5-shigoto",
+    category: "kata",
+    answer: ["し", "ご", "と"],
+    romaji: "shi-go-to",
+    meaningId: "Pekerjaan (仕事)",
+  },
+  {
+    id: "n5-jaa",
+    category: "kata",
+    answer: ["じ", "ゃ", "あ"],
+    romaji: "ja-a",
+    meaningId: "Baiklah / kalau begitu (じゃあ)",
+  },
+  {
+    id: "n5-daisuki",
+    category: "kata",
+    answer: ["だ", "い", "す", "き"],
+    romaji: "dai-su-ki",
+    meaningId: "Sangat suka (大好き)",
+  },
+  {
+    id: "n5-tegami",
+    category: "kata",
+    answer: ["て", "が", "み"],
+    romaji: "te-ga-mi",
+    meaningId: "Surat (手紙)",
+  },
+  {
+    id: "n5-tomodachi",
+    category: "kata",
+    answer: ["と", "も", "だ", "ち"],
+    romaji: "to-mo-da-chi",
+    meaningId: "Teman (友達)",
+  },
+  {
+    id: "n5-nihongo",
+    category: "kata",
+    answer: ["に", "ほ", "ん", "ご"],
+    romaji: "ni-hon-go",
+    meaningId: "Bahasa Jepang (日本語)",
+  },
+  {
+    id: "n5-nomu",
+    category: "kata",
+    answer: ["の", "む"],
+    romaji: "no-mu",
+    meaningId: "Minum (飲む)",
+  },
+  {
+    id: "n5-hanasu",
+    category: "kata",
+    answer: ["は", "な", "す"],
+    romaji: "ha-na-su",
+    meaningId: "Berbicara (話す)",
+  },
+  {
+    id: "n5-hito",
+    category: "kata",
+    answer: ["ひ", "と"],
+    romaji: "hi-to",
+    meaningId: "Orang (人)",
+  },
+  {
+    id: "n5-fune",
+    category: "kata",
+    answer: ["ふ", "ね"],
+    romaji: "fu-ne",
+    meaningId: "Kapal / perahu (船)",
+  },
+  {
+    id: "n5-hon",
+    category: "kata",
+    answer: ["ほ", "ん"],
+    romaji: "hon",
+    meaningId: "Buku (本)",
+  },
+  {
+    id: "n5-mushi",
+    category: "kata",
+    answer: ["む", "し"],
+    romaji: "mu-shi",
+    meaningId: "Serangga (虫)",
+  },
+  {
+    id: "n5-yasai",
+    category: "kata",
+    answer: ["や", "さ", "い"],
+    romaji: "ya-sa-i",
+    meaningId: "Sayuran (野菜)",
+  },
+  {
+    id: "n5-yomu",
+    category: "kata",
+    answer: ["よ", "む"],
+    romaji: "yo-mu",
+    meaningId: "Membaca (読む)",
+  },
+  {
+    id: "n5-ryouri",
+    category: "kata",
+    answer: ["り", "ょ", "う", "り"],
+    romaji: "ryō-ri",
+    meaningId: "Masak / masakan (料理)",
+  },
+  {
+    id: "n5-apato",
+    category: "kata",
+    answer: ["ア", "パ", "ー", "ト"],
+    romaji: "a-pā-to",
+    meaningId: "Apartemen (アパート)",
+  },
+  {
+    id: "n5-kouhii",
+    category: "kata",
+    answer: ["コ", "ー", "ヒ", "ー"],
+    romaji: "kō-hī",
+    meaningId: "Kopi (コーヒー)",
+  },
 ];
+
+export const wordPuzzles: WordPuzzle[] = dedupePuzzlesFirstWins([
+  ...handCurated,
+  ...jlptCsvN5Puzzles,
+  ...jlptCsvN4Puzzles,
+  ...jlptCsvN3Puzzles,
+  ...jlptCsvN2Puzzles,
+  ...jlptCsvN1Puzzles,
+]);
+
+export function puzzlesByCategory(category: WordCategory): WordPuzzle[] {
+  return wordPuzzles.filter((p) => p.category === category);
+}

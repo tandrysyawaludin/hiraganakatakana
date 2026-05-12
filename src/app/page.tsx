@@ -17,7 +17,7 @@ const cards = [
   {
     href: "/susun",
     title: strings.navArrange,
-    desc: strings.arrangeHint,
+    desc: strings.arrangeCardDesc,
     color: "from-lime-400 to-emerald-400",
   },
 ] as const;

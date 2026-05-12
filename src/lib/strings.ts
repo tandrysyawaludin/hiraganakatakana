@@ -20,6 +20,23 @@ export const strings = {
   arrangeTitle: "Susun kata",
   arrangeHint:
     "Susun huruf dari kiri ke kanan. Sentuh huruf di bawah untuk memasukkannya.",
+  arrangeCardDesc:
+    "Kata: tema, sehari-hari, plus kosakata JLPT N5–N1 (sumber terbuka, urut N5→N1). Kalimat: latihan kalimat pendek. Mode klik atau mode tulis.",
+  arrangeHintWrite:
+    "Mode tulis: ikuti bentuk huruf abu-abu dengan coretanmu. Tekan Selesai hanya jika sudah meniru bentuknya.",
+  arrangeWriteWrong:
+    "Coretan belum mengikuti bentuk huruf ini. Tekan Hapus lalu coba lagi mengikuti garis abu-abu.",
+  arrangeShapeErrorTitle: "Belum pas",
+  arrangeShapeErrorOk: "Oke",
+  arrangeClickErrorTitle: "Belum benar",
+  arrangeCatLearnWords: "Kata",
+  arrangeCatLearnSentences: "Kalimat",
+  arrangePickType: "Pilih jenis latihan",
+  arrangePickHow: "Cara bermain",
+  arrangeModeClick: "Mode klik",
+  arrangeModeWrite: "Mode tulis",
+  arrangeWriteProgress: "Huruf ke-{n} dari {total}",
+  arrangeDoneLetter: "Selesai huruf ini",
   arrangeCheck: "Cek jawaban",
   arrangeNext: "Soal berikutnya",
   arrangeCorrect: "Hebat! Benar!",
