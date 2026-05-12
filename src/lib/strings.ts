@@ -1,0 +1,31 @@
+export const strings = {
+  siteTitle: "Belajar Hiragana & Katakana",
+  siteSubtitle: "Permainan huruf Jepang untuk anak",
+  homeIntro:
+    "Pilih permainan di bawah. Tekan tombol speaker untuk mendengar bunyi.",
+  navHome: "Beranda",
+  navRead: "Baca",
+  navWrite: "Tulis",
+  navArrange: "Susun",
+  readTitle: "Tebak & dengar",
+  readHint: "Sentuh huruf, lalu dengarkan bunyi Jepang.",
+  hiragana: "Hiragana",
+  katakana: "Katakana",
+  speak: "Dengar",
+  howToReadLatin: "Cara baca (huruf Latin / romaji):",
+  wordHowToRead: "Cara baca kata (romaji):",
+  writeTitle: "Menggambar huruf",
+  writeHint: "Pilih huruf, lalu ikuti garis tipis dengan jari atau mouse.",
+  clear: "Hapus",
+  arrangeTitle: "Susun kata",
+  arrangeHint:
+    "Susun huruf dari kiri ke kanan. Sentuh huruf di bawah untuk memasukkannya.",
+  arrangeCheck: "Cek jawaban",
+  arrangeNext: "Soal berikutnya",
+  arrangeCorrect: "Hebat! Benar!",
+  arrangeTryAgain: "Coba lagi, kamu pasti bisa!",
+  meaning: "Arti",
+  soundHint: "Petunjuk bunyi",
+  footerNote:
+    "Bunyi memakai suara di perangkatmu. Orang tua bisa membantu jika kurang jelas.",
+} as const;
