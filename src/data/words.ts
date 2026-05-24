@@ -1,11 +1,5 @@
 import type { WordCategory, WordPuzzle } from "./wordTypes";
-import {
-  jlptCsvN1Puzzles,
-  jlptCsvN2Puzzles,
-  jlptCsvN3Puzzles,
-  jlptCsvN4Puzzles,
-  jlptCsvN5Puzzles,
-} from "./jlptCsvGenerated";
+import { dictionaryFromCsv } from "./dictionaryGenerated";
 
 export type { WordCategory, WordPuzzle } from "./wordTypes";
 
@@ -28,6 +22,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["さ", "く", "ら"],
     romaji: "sa-ku-ra",
+    meaningEn: "Cherry blossom",
     meaningId: "Bunga sakura",
   },
   {
@@ -35,6 +30,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["ね", "こ"],
     romaji: "ne-ko",
+    meaningEn: "Cat",
     meaningId: "Kucing",
   },
   {
@@ -42,6 +38,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["い", "ぬ"],
     romaji: "i-nu",
+    meaningEn: "Dog",
     meaningId: "Anjing",
   },
   {
@@ -49,6 +46,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["み", "ず"],
     romaji: "mi-zu",
+    meaningEn: "Water",
     meaningId: "Air",
   },
   {
@@ -56,6 +54,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["パ", "ン"],
     romaji: "pan",
+    meaningEn: "Bread (loanword)",
     meaningId: "Roti (kata serapan)",
   },
   {
@@ -63,6 +62,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["い", "す"],
     romaji: "i-su",
+    meaningEn: "Chair",
     meaningId: "Kursi",
   },
   {
@@ -70,6 +70,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["り", "ん", "ご"],
     romaji: "rin-go",
+    meaningEn: "Apple",
     meaningId: "Apel",
   },
   {
@@ -77,6 +78,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["は", "な"],
     romaji: "ha-na",
+    meaningEn: "Flower",
     meaningId: "Bunga",
   },
   {
@@ -84,6 +86,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["た", "い", "よ", "う"],
     romaji: "tai-yō",
+    meaningEn: "Sun",
     meaningId: "Matahari",
   },
   {
@@ -91,6 +94,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["つ", "き"],
     romaji: "tsu-ki",
+    meaningEn: "Moon",
     meaningId: "Bulan",
   },
 
@@ -100,6 +104,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["お", "は", "よ", "う"],
     romaji: "o-ha-yo-u",
+    meaningEn: "Good morning (informal)",
     meaningId: "Selamat pagi (informal)",
   },
   {
@@ -107,6 +112,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["こ", "ん", "に", "ち", "は"],
     romaji: "kon-ni-chi-wa",
+    meaningEn: "Hello / good afternoon",
     meaningId: "Halo / selamat siang",
   },
   {
@@ -114,6 +120,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["こ", "ん", "ば", "ん", "は"],
     romaji: "kon-ban-wa",
+    meaningEn: "Good evening (greeting)",
     meaningId: "Selamat malam (sapaan)",
   },
   {
@@ -121,6 +128,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["あ", "り", "が", "と", "う"],
     romaji: "a-ri-ga-tō",
+    meaningEn: "Thank you",
     meaningId: "Terima kasih",
   },
   {
@@ -128,6 +136,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["さ", "よ", "う", "な", "ら"],
     romaji: "sa-yō-na-ra",
+    meaningEn: "Goodbye",
     meaningId: "Sampai jumpa",
   },
   {
@@ -135,6 +144,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["は", "い"],
     romaji: "hai",
+    meaningEn: "Yes",
     meaningId: "Ya",
   },
   {
@@ -142,6 +152,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["い", "い", "え"],
     romaji: "i-i-e",
+    meaningEn: "No",
     meaningId: "Tidak",
   },
   {
@@ -149,6 +160,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["す", "み", "ま", "せ", "ん"],
     romaji: "su-mi-ma-sen",
+    meaningEn: "Excuse me / sorry",
     meaningId: "Permisi / maaf",
   },
   {
@@ -156,6 +168,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["い", "た", "だ", "き", "ま", "す"],
     romaji: "i-ta-da-ki-ma-su",
+    meaningEn: "Said before eating",
     meaningId: "Sebelum makan (ucapan)",
   },
   {
@@ -163,6 +176,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["ご", "め", "ん", "な", "さ", "い"],
     romaji: "go-men-na-sai",
+    meaningEn: "I'm sorry",
     meaningId: "Maafkan aku",
   },
   {
@@ -170,6 +184,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["お", "ね", "が", "い", "し", "ま", "す"],
     romaji: "o-ne-gai-shi-ma-su",
+    meaningEn: "Please (request)",
     meaningId: "Tolong / saya mohon",
   },
   {
@@ -177,6 +192,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["た", "べ", "も", "の"],
     romaji: "ta-be-mo-no",
+    meaningEn: "Food",
     meaningId: "Makanan",
   },
   {
@@ -184,6 +200,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["の", "み", "も", "の"],
     romaji: "no-mi-mo-no",
+    meaningEn: "Drink",
     meaningId: "Minuman",
   },
 
@@ -193,6 +210,7 @@ const handCurated: WordPuzzle[] = [
     category: "kalimat",
     answer: ["お", "げ", "ん", "き", "で", "す", "か"],
     romaji: "o-gen-ki-de-su-ka",
+    meaningEn: "How are you? (polite)",
     meaningId: "Apa kabar? (formal sopan)",
   },
   {
@@ -200,6 +218,7 @@ const handCurated: WordPuzzle[] = [
     category: "kalimat",
     answer: ["げ", "ん", "き", "で", "す"],
     romaji: "gen-ki-de-su",
+    meaningEn: "I'm fine",
     meaningId: "Aku baik-baik saja",
   },
   {
@@ -207,6 +226,7 @@ const handCurated: WordPuzzle[] = [
     category: "kalimat",
     answer: ["は", "じ", "め", "ま", "し", "て"],
     romaji: "ha-ji-me-ma-shi-te",
+    meaningEn: "Nice to meet you",
     meaningId: "Senang bertemu (perkenalan)",
   },
   {
@@ -214,6 +234,7 @@ const handCurated: WordPuzzle[] = [
     category: "kalimat",
     answer: ["よ", "ろ", "し", "く"],
     romaji: "yo-ro-shi-ku",
+    meaningEn: "Please treat me well (after intro)",
     meaningId: "Salam penutup perkenalan (tolong bantuanku)",
   },
   {
@@ -221,6 +242,7 @@ const handCurated: WordPuzzle[] = [
     category: "kalimat",
     answer: ["わ", "か", "り", "ま", "し", "た"],
     romaji: "wa-ka-ri-ma-shi-ta",
+    meaningEn: "Understood; I see",
     meaningId: "Baik, aku mengerti",
   },
   {
@@ -228,6 +250,7 @@ const handCurated: WordPuzzle[] = [
     category: "kalimat",
     answer: ["ち", "ょ", "っ", "と"],
     romaji: "chot-to",
+    meaningEn: "A little; wait a moment",
     meaningId: "Sebentar / sedikit",
   },
   {
@@ -235,6 +258,7 @@ const handCurated: WordPuzzle[] = [
     category: "kalimat",
     answer: ["が", "ん", "ば", "っ", "て"],
     romaji: "gan-ba-tte",
+    meaningEn: "Hang in there; do your best",
     meaningId: "Semangat! (kata dukungan)",
   },
   {
@@ -242,6 +266,7 @@ const handCurated: WordPuzzle[] = [
     category: "kalimat",
     answer: ["た", "の", "し", "い"],
     romaji: "ta-no-shi-i",
+    meaningEn: "Fun; enjoyable",
     meaningId: "Menyenangkan / seru",
   },
   {
@@ -249,6 +274,7 @@ const handCurated: WordPuzzle[] = [
     category: "kalimat",
     answer: ["す", "き"],
     romaji: "su-ki",
+    meaningEn: "Like; fond of",
     meaningId: "Suka",
   },
   {
@@ -256,6 +282,7 @@ const handCurated: WordPuzzle[] = [
     category: "kalimat",
     answer: ["だ", "い", "じ", "ょ", "う", "ぶ"],
     romaji: "dai-jō-bu",
+    meaningEn: "It's okay; all right",
     meaningId: "Tidak apa-apa / aman",
   },
 
@@ -266,6 +293,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["あ", "う"],
     romaji: "a-u",
+    meaningEn: "To meet (会う)",
     meaningId: "Bertemu (会う)",
   },
   {
@@ -273,6 +301,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["あ", "お", "い"],
     romaji: "a-o-i",
+    meaningEn: "Blue / green (color) (青い)",
     meaningId: "Biru / hijau (warna) (青い)",
   },
   {
@@ -280,6 +309,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["あ", "か", "い"],
     romaji: "a-ka-i",
+    meaningEn: "Red (赤い)",
     meaningId: "Merah (赤い)",
   },
   {
@@ -287,6 +317,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["あ", "か", "る", "い"],
     romaji: "a-ka-ru-i",
+    meaningEn: "Bright; cheerful (明るい)",
     meaningId: "Terang / cerah (明るい)",
   },
   {
@@ -294,6 +325,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["あ", "き"],
     romaji: "a-ki",
+    meaningEn: "Autumn (秋)",
     meaningId: "Musim gugur (秋)",
   },
   {
@@ -301,6 +333,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["あ", "く"],
     romaji: "a-ku",
+    meaningEn: "To open; to be empty (開く・空く)",
     meaningId: "Terbuka / kosong (開く・空く)",
   },
   {
@@ -308,6 +341,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["あ", "け", "る"],
     romaji: "a-ke-ru",
+    meaningEn: "To open (something) (開ける)",
     meaningId: "Membuka (sesuatu) (開ける)",
   },
   {
@@ -315,6 +349,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["あ", "さ"],
     romaji: "a-sa",
+    meaningEn: "Morning (朝)",
     meaningId: "Pagi (朝)",
   },
   {
@@ -322,6 +357,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["あ", "さ", "ご", "は", "ん"],
     romaji: "a-sa-go-han",
+    meaningEn: "Breakfast (朝ごはん)",
     meaningId: "Sarapan (朝ごはん)",
   },
   {
@@ -329,6 +365,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["あ", "し", "た"],
     romaji: "a-shi-ta",
+    meaningEn: "Tomorrow (明日)",
     meaningId: "Besok (明日)",
   },
   {
@@ -336,6 +373,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["あ", "そ", "ぶ"],
     romaji: "a-so-bu",
+    meaningEn: "To play (遊ぶ)",
     meaningId: "Bermain (遊ぶ)",
   },
   {
@@ -343,6 +381,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["あ", "た", "た", "か", "い"],
     romaji: "a-ta-ta-ka-i",
+    meaningEn: "Warm (暖かい・温かい)",
     meaningId: "Hangat (暖かい・温かい)",
   },
   {
@@ -350,6 +389,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["あ", "た", "ま"],
     romaji: "a-ta-ma",
+    meaningEn: "Head (頭)",
     meaningId: "Kepala (頭)",
   },
   {
@@ -357,6 +397,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["あ", "た", "ら", "し", "い"],
     romaji: "a-ta-ra-shi-i",
+    meaningEn: "New (新しい)",
     meaningId: "Baru (新しい)",
   },
   {
@@ -364,6 +405,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["あ", "つ", "い"],
     romaji: "a-tsu-i",
+    meaningEn: "Hot (weather) (暑い)",
     meaningId: "Panas (cuaca) (暑い)",
   },
   {
@@ -371,6 +413,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["あ", "め"],
     romaji: "a-me",
+    meaningEn: "Rain (雨)",
     meaningId: "Hujan (雨)",
   },
   {
@@ -378,6 +421,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["あ", "る", "く"],
     romaji: "a-ru-ku",
+    meaningEn: "To walk (歩く)",
     meaningId: "Berjalan (歩く)",
   },
   {
@@ -385,6 +429,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["あ", "ら", "う"],
     romaji: "a-ra-u",
+    meaningEn: "To wash (洗う)",
     meaningId: "Mencuci (洗う)",
   },
   {
@@ -392,6 +437,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["あ", "ぶ", "な", "い"],
     romaji: "a-bu-na-i",
+    meaningEn: "Dangerous (危ない)",
     meaningId: "Berbahaya (危ない)",
   },
   {
@@ -399,6 +445,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["い", "う"],
     romaji: "i-u",
+    meaningEn: "To say (言う)",
     meaningId: "Berkata (言う)",
   },
   {
@@ -406,6 +453,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["い", "え"],
     romaji: "i-e",
+    meaningEn: "House (家)",
     meaningId: "Rumah (家)",
   },
   {
@@ -413,6 +461,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["い", "け"],
     romaji: "i-ke",
+    meaningEn: "Pond (池)",
     meaningId: "Kolam / danau kecil (池)",
   },
   {
@@ -420,6 +469,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["い", "し", "ゃ"],
     romaji: "i-sha",
+    meaningEn: "Doctor (医者)",
     meaningId: "Dokter (医者)",
   },
   {
@@ -427,6 +477,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["い", "そ", "が", "し", "い"],
     romaji: "i-so-ga-shi-i",
+    meaningEn: "Busy (忙しい)",
     meaningId: "Sibuk (忙しい)",
   },
   {
@@ -434,6 +485,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["い", "た", "い"],
     romaji: "i-ta-i",
+    meaningEn: "Painful; hurts (痛い)",
     meaningId: "Sakit (痛い)",
   },
   {
@@ -441,6 +493,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["い", "も", "う", "と"],
     romaji: "i-mō-to",
+    meaningEn: "Younger sister (妹)",
     meaningId: "Adik perempuan (妹)",
   },
   {
@@ -448,6 +501,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["い", "く"],
     romaji: "i-ku",
+    meaningEn: "To go (行く)",
     meaningId: "Pergi (行く)",
   },
   {
@@ -455,6 +509,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["え", "い", "ご"],
     romaji: "e-i-go",
+    meaningEn: "English language (英語)",
     meaningId: "Bahasa Inggris (英語)",
   },
   {
@@ -462,6 +517,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["か", "お"],
     romaji: "ka-o",
+    meaningEn: "Face (顔)",
     meaningId: "Wajah (顔)",
   },
   {
@@ -469,6 +525,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["き", "く"],
     romaji: "ki-ku",
+    meaningEn: "To hear; to listen (聞く)",
     meaningId: "Mendengar (聞く)",
   },
   {
@@ -476,6 +533,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["く", "る"],
     romaji: "ku-ru",
+    meaningEn: "To come (来る)",
     meaningId: "Datang (来る)",
   },
   {
@@ -483,6 +541,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["ご", "は", "ん"],
     romaji: "go-han",
+    meaningEn: "Rice; meal (ご飯)",
     meaningId: "Nasi / makan (ご飯)",
   },
   {
@@ -490,6 +549,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["ぎ", "ゅ", "う", "に", "ゅ", "う"],
     romaji: "gyū-nyū",
+    meaningEn: "Cow's milk (牛乳)",
     meaningId: "Susu sapi (牛乳)",
   },
   {
@@ -497,6 +557,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["さ", "か", "な"],
     romaji: "sa-ka-na",
+    meaningEn: "Fish (魚)",
     meaningId: "Ikan (魚)",
   },
   {
@@ -504,6 +565,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["し", "ご", "と"],
     romaji: "shi-go-to",
+    meaningEn: "Work; job (仕事)",
     meaningId: "Pekerjaan (仕事)",
   },
   {
@@ -511,6 +573,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["じ", "ゃ", "あ"],
     romaji: "ja-a",
+    meaningEn: "Well then; so (じゃあ)",
     meaningId: "Baiklah / kalau begitu (じゃあ)",
   },
   {
@@ -518,6 +581,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["だ", "い", "す", "き"],
     romaji: "dai-su-ki",
+    meaningEn: "Love; really like (大好き)",
     meaningId: "Sangat suka (大好き)",
   },
   {
@@ -525,6 +589,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["て", "が", "み"],
     romaji: "te-ga-mi",
+    meaningEn: "Letter (手紙)",
     meaningId: "Surat (手紙)",
   },
   {
@@ -532,6 +597,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["と", "も", "だ", "ち"],
     romaji: "to-mo-da-chi",
+    meaningEn: "Friend (友達)",
     meaningId: "Teman (友達)",
   },
   {
@@ -539,6 +605,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["に", "ほ", "ん", "ご"],
     romaji: "ni-hon-go",
+    meaningEn: "Japanese language (日本語)",
     meaningId: "Bahasa Jepang (日本語)",
   },
   {
@@ -546,6 +613,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["の", "む"],
     romaji: "no-mu",
+    meaningEn: "To drink (飲む)",
     meaningId: "Minum (飲む)",
   },
   {
@@ -553,6 +621,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["は", "な", "す"],
     romaji: "ha-na-su",
+    meaningEn: "To speak (話す)",
     meaningId: "Berbicara (話す)",
   },
   {
@@ -560,6 +629,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["ひ", "と"],
     romaji: "hi-to",
+    meaningEn: "Person (人)",
     meaningId: "Orang (人)",
   },
   {
@@ -567,6 +637,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["ふ", "ね"],
     romaji: "fu-ne",
+    meaningEn: "Ship; boat (船)",
     meaningId: "Kapal / perahu (船)",
   },
   {
@@ -574,6 +645,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["ほ", "ん"],
     romaji: "hon",
+    meaningEn: "Book (本)",
     meaningId: "Buku (本)",
   },
   {
@@ -581,6 +653,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["む", "し"],
     romaji: "mu-shi",
+    meaningEn: "Insect (虫)",
     meaningId: "Serangga (虫)",
   },
   {
@@ -588,6 +661,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["や", "さ", "い"],
     romaji: "ya-sa-i",
+    meaningEn: "Vegetables (野菜)",
     meaningId: "Sayuran (野菜)",
   },
   {
@@ -595,6 +669,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["よ", "む"],
     romaji: "yo-mu",
+    meaningEn: "To read (読む)",
     meaningId: "Membaca (読む)",
   },
   {
@@ -602,6 +677,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["り", "ょ", "う", "り"],
     romaji: "ryō-ri",
+    meaningEn: "Cooking; cuisine (料理)",
     meaningId: "Masak / masakan (料理)",
   },
   {
@@ -609,6 +685,7 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["ア", "パ", "ー", "ト"],
     romaji: "a-pā-to",
+    meaningEn: "Apartment (アパート)",
     meaningId: "Apartemen (アパート)",
   },
   {
@@ -616,19 +693,38 @@ const handCurated: WordPuzzle[] = [
     category: "kata",
     answer: ["コ", "ー", "ヒ", "ー"],
     romaji: "kō-hī",
+    meaningEn: "Coffee (コーヒー)",
     meaningId: "Kopi (コーヒー)",
   },
 ];
 
 export const wordPuzzles: WordPuzzle[] = dedupePuzzlesFirstWins([
   ...handCurated,
-  ...jlptCsvN5Puzzles,
-  ...jlptCsvN4Puzzles,
-  ...jlptCsvN3Puzzles,
-  ...jlptCsvN2Puzzles,
-  ...jlptCsvN1Puzzles,
+  ...dictionaryFromCsv,
 ]);
 
 export function puzzlesByCategory(category: WordCategory): WordPuzzle[] {
   return wordPuzzles.filter((p) => p.category === category);
+}
+
+export type JlptDeckLevel = "n5" | "n4" | "n3" | "n2" | "n1";
+
+export function puzzleJlptPrefix(p: WordPuzzle): JlptDeckLevel | null {
+  const m = /^jlpt-(n[1-5])-/i.exec(p.id);
+  if (!m?.[1]) return null;
+  return m[1].toLowerCase() as JlptDeckLevel;
+}
+
+export function puzzlesByJlptLevel(level: JlptDeckLevel): WordPuzzle[] {
+  return wordPuzzles.filter((p) => puzzleJlptPrefix(p) === level);
+}
+
+/** Kalimat from any source (hand + dictionary), category kalimat */
+export function puzzlesKalimatAll(): WordPuzzle[] {
+  return wordPuzzles.filter((p) => p.category === "kalimat");
+}
+
+/** Kata tanpa kartu JLPT (latihan pilihan / tematik) */
+export function puzzlesCuratedKata(): WordPuzzle[] {
+  return wordPuzzles.filter((p) => p.category === "kata" && !puzzleJlptPrefix(p));
 }

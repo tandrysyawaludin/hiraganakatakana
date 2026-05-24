@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "gen:jlpt": "node scripts/generate-jlpt-from-csv.mjs"
+    "gen:dictionary": "node scripts/generate-dictionary-from-csv.mjs",
+    "gen:jlpt": "npm run gen:dictionary",
+    "fill:meaning-id": "node scripts/fill-meaning-indonesia-jlpt.mjs"
   },
   "dependencies": {
     "next": "16.2.6",
@@ -20,6 +22,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "csv-parse": "^6.2.1",
+    "csv-stringify": "^6.7.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",

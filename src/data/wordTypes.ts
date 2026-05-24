@@ -7,5 +7,8 @@ export type WordPuzzle = {
   category: WordCategory;
   answer: string[];
   romaji: string;
+  /** English gloss */
+  meaningEn: string;
+  /** Indonesian gloss */
   meaningId: string;
 };

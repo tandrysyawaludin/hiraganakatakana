@@ -10,7 +10,7 @@ const nav = [
 
 export function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col gap-4 px-4 py-6">
+    <div className="mx-auto flex min-h-full w-full max-w-6xl flex-col gap-4 px-4 py-6">
       <header className="flex flex-col gap-3 rounded-3xl bg-white/90 p-4 shadow-md ring-2 ring-pink-100">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <Link href="/" className="text-xl font-bold text-pink-600">

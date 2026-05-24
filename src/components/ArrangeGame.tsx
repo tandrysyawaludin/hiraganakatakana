@@ -8,8 +8,19 @@ import {
   type WordCategory,
   type WordPuzzle,
 } from "@/data/words";
+import { markPuzzlePassed } from "@/lib/susunProgress";
 import { speakJapanese } from "@/lib/speech";
 import { strings } from "@/lib/strings";
+
+export type ArrangeGameProps = {
+  /** JLPT level / filtered set — hides Kata vs Kalimat tabs */
+  fixedPuzzles?: WordPuzzle[];
+  /** Controlled index into `fixedPuzzles` (studio list) */
+  puzzleIndex?: number;
+  onPuzzleIndexChange?: (index: number) => void;
+  /** Fires when the learner answers correctly (for progress / checkmarks) */
+  onPuzzlePassed?: (puzzleId: string) => void;
+};
 
 const initialList = puzzlesByCategory("kata");
 const initialPuzzle = initialList[0]!;
@@ -57,12 +68,26 @@ const categoryTabs: {
   { id: "kalimat", labelKey: "arrangeCatLearnSentences" },
 ];
 
-export function ArrangeGame() {
+export function ArrangeGame(props: ArrangeGameProps = {}) {
+  const { fixedPuzzles, puzzleIndex, onPuzzleIndexChange, onPuzzlePassed } = props;
+  const isStudio = Boolean(fixedPuzzles?.length);
+  const isIndexControlled =
+    isStudio && puzzleIndex !== undefined && onPuzzleIndexChange !== undefined;
+
   const [category, setCategory] = useState<WordCategory>("kata");
+  const [internalIdx, setInternalIdx] = useState(0);
+  const idx = isIndexControlled ? puzzleIndex! : internalIdx;
+  const setIdx = (n: number) => {
+    if (isIndexControlled) onPuzzleIndexChange!(n);
+    else setInternalIdx(n);
+  };
+
+  const puzzles = useMemo(() => {
+    if (fixedPuzzles?.length) return fixedPuzzles;
+    return puzzlesByCategory(category);
+  }, [fixedPuzzles, category]);
+
   const [playMode, setPlayMode] = useState<PlayMode>("click");
-  const puzzles = useMemo(() => puzzlesByCategory(category), [category]);
-  const [idx, setIdx] = useState(0);
-  const puzzle = puzzles[idx % puzzles.length];
   const [slots, setSlots] = useState<(string | null)[]>(() =>
     emptySlots(initialPuzzle),
   );
@@ -72,6 +97,8 @@ export function ArrangeGame() {
   const [writeStep, setWriteStep] = useState(0);
   const [feedback, setFeedback] = useState<"idle" | "ok" | "bad" | "shape">("idle");
   const traceRef = useRef<KanaTracePadHandle>(null);
+
+  const puzzle = puzzles[idx % Math.max(puzzles.length, 1)] ?? initialPuzzle;
 
   const syncClickForPuzzle = (p: WordPuzzle, bankSeed: string) => {
     setSlots(emptySlots(p));
@@ -92,6 +119,8 @@ export function ArrangeGame() {
     else syncWriteForPuzzle(p);
   };
 
+  const scopeSeed = isStudio ? "studio" : category;
+
   const setCategoryAndReset = (c: WordCategory) => {
     const list = puzzlesByCategory(c);
     const first = list[0]!;
@@ -105,9 +134,33 @@ export function ArrangeGame() {
     applyModeForPuzzle(
       puzzle,
       mode,
-      `${category}-${puzzle.id}-${idx}`,
+      `${scopeSeed}-${puzzle.id}-${idx}`,
     );
   };
+
+  useEffect(() => {
+    if (!isStudio || !puzzles.length) return;
+    const p = puzzles[idx % puzzles.length];
+    if (!p) return;
+    // Reset slots/bank when parent-controlled studio index changes (no event callback for prop updates).
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional sync for new puzzle from list
+    applyModeForPuzzle(p, playMode, `studio-${p.id}-${idx}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- playMode handled in setPlayModeAndReset
+  }, [isStudio, idx, puzzle.id, puzzles.length]);
+
+  useEffect(() => {
+    if (feedback !== "shape" && feedback !== "bad") return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setFeedback("idle");
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [feedback]);
 
   const pickFromBank = (letter: string, bankIndex: number) => {
     const empty = slots.findIndex((s) => s === null);
@@ -134,14 +187,20 @@ export function ArrangeGame() {
   const check = () => {
     const ok = slots.every((s, i) => s === puzzle.answer[i]);
     setFeedback(ok ? "ok" : "bad");
-    if (ok) speakJapanese(puzzle.answer.join(""));
+    if (ok) {
+      speakJapanese(puzzle.answer.join(""));
+      markPuzzlePassed(puzzle.id);
+      onPuzzlePassed?.(puzzle.id);
+    }
   };
 
   const next = () => {
     const n = (idx + 1) % puzzles.length;
     const p = puzzles[n]!;
     setIdx(n);
-    applyModeForPuzzle(p, playMode, `${category}-${p.id}-${n}`);
+    if (!isStudio) {
+      applyModeForPuzzle(p, playMode, `${scopeSeed}-${p.id}-${n}`);
+    }
   };
 
   const finishWriteLetter = () => {
@@ -160,6 +219,8 @@ export function ArrangeGame() {
     if (nextStep >= puzzle.answer.length) {
       setFeedback("ok");
       speakJapanese(puzzle.answer.join(""));
+      markPuzzlePassed(puzzle.id);
+      onPuzzlePassed?.(puzzle.id);
     } else {
       setFeedback("idle");
     }
@@ -168,23 +229,17 @@ export function ArrangeGame() {
   const topHint =
     playMode === "click" ? strings.arrangeHint : strings.arrangeHintWrite;
 
+  if (!puzzles.length) {
+    return (
+      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-center text-amber-900">
+        {strings.susunEmptyList}
+      </div>
+    );
+  }
+
   const writeProgress = strings.arrangeWriteProgress
     .replace("{n}", String(writeStep + 1))
     .replace("{total}", String(puzzle.answer.length));
-
-  useEffect(() => {
-    if (feedback !== "shape" && feedback !== "bad") return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setFeedback("idle");
-    };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = prev;
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [feedback]);
 
   const showErrorModal = feedback === "shape" || feedback === "bad";
   const errorModalTitle =
@@ -193,7 +248,8 @@ export function ArrangeGame() {
     feedback === "shape" ? strings.arrangeWriteWrong : strings.arrangeTryAgain;
 
   return (
-    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-6">
+      {!isStudio && (
       <div className="flex flex-col gap-3">
         <p className="text-sm font-bold uppercase tracking-wide text-slate-500">
           {strings.arrangePickType}
@@ -215,6 +271,7 @@ export function ArrangeGame() {
           ))}
         </div>
       </div>
+      )}
 
       <div className="flex flex-col gap-3">
         <p className="text-sm font-bold uppercase tracking-wide text-slate-500">
@@ -250,9 +307,21 @@ export function ArrangeGame() {
 
       <div className="rounded-3xl bg-white p-5 shadow-lg ring-2 ring-lime-100">
         <p className="text-sm font-bold uppercase tracking-wide text-slate-500">
-          {strings.meaning}
+          {strings.arrangeMeaningEnglish}
         </p>
-        <p className="text-2xl font-bold text-slate-800">{puzzle.meaningId}</p>
+        <p className="text-2xl font-bold text-slate-800">{puzzle.meaningEn}</p>
+        <p className="mt-4 text-sm font-bold uppercase tracking-wide text-slate-500">
+          {strings.arrangeMeaningIndonesian}
+        </p>
+        <p
+          className={`text-2xl font-bold ${
+            puzzle.meaningId.trim() ? "text-slate-800" : "text-slate-400 italic"
+          }`}
+        >
+          {puzzle.meaningId.trim()
+            ? puzzle.meaningId
+            : strings.arrangeMeaningIndonesiaMissing}
+        </p>
         <p className="mt-4 text-sm font-bold text-slate-600">{strings.wordHowToRead}</p>
         <p className="mt-1 font-mono text-3xl font-extrabold tracking-wide text-violet-800 sm:text-4xl">
           {puzzle.romaji}
