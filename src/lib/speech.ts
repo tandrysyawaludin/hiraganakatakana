@@ -16,6 +16,9 @@ const HIGH_QUALITY_VOICE_PATTERNS: RegExp[] = [
   /Hattori/i,
 ];
 
+const TRANSLATE_TTS_BASE = "https://translate.google.com/translate_tts";
+const MAX_CHUNK_LEN = 180;
+
 function isJapaneseLang(lang: string): boolean {
   return /^ja(-|_|$)/i.test(lang);
 }
@@ -35,18 +38,57 @@ function pickJaVoice(): SpeechSynthesisVoice | null {
   return remote ?? voices[0];
 }
 
-let activeAudio: HTMLAudioElement | null = null;
-
-function stopActiveAudio(): void {
-  if (activeAudio) {
-    try {
-      activeAudio.pause();
-      activeAudio.removeAttribute("src");
-      activeAudio.load();
-    } catch {
-      // ignore — element may already be detached
+function chunkJapanese(text: string): string[] {
+  const trimmed = text.trim();
+  if (trimmed.length <= MAX_CHUNK_LEN) return [trimmed];
+  const chunks: string[] = [];
+  let buffer = "";
+  const parts = trimmed.split(/(?<=[。！？、…,.\s])/);
+  for (const part of parts) {
+    if (!part) continue;
+    if ((buffer + part).length > MAX_CHUNK_LEN && buffer) {
+      chunks.push(buffer);
+      buffer = "";
     }
-    activeAudio = null;
+    if (part.length > MAX_CHUNK_LEN) {
+      for (let i = 0; i < part.length; i += MAX_CHUNK_LEN) {
+        chunks.push(part.slice(i, i + MAX_CHUNK_LEN));
+      }
+      continue;
+    }
+    buffer += part;
+  }
+  if (buffer) chunks.push(buffer);
+  return chunks;
+}
+
+function translateTtsUrl(chunk: string, index: number, total: number): string {
+  const params = new URLSearchParams({
+    ie: "UTF-8",
+    q: chunk,
+    tl: "ja",
+    total: String(total),
+    idx: String(index),
+    textlen: String(chunk.length),
+    client: "tw-ob",
+  });
+  return `${TRANSLATE_TTS_BASE}?${params.toString()}`;
+}
+
+let activePlayback: { audio: HTMLAudioElement; cancelled: boolean } | null =
+  null;
+
+function stopActivePlayback(): void {
+  if (activePlayback) {
+    activePlayback.cancelled = true;
+    try {
+      activePlayback.audio.pause();
+      activePlayback.audio.removeAttribute("src");
+      activePlayback.audio.load();
+    } catch {
+      // ignore
+    }
+    activePlayback = null;
   }
   if (typeof window !== "undefined" && window.speechSynthesis) {
     try {
@@ -64,42 +106,54 @@ function speakWithSynthesis(text: string): void {
   utterance.lang = "ja-JP";
   const voice = pickJaVoice();
   if (voice) utterance.voice = voice;
-  // Slightly slower than natural to help learners distinguish each mora,
-  // but not so slow that prosody breaks down.
+  // Slightly slower than natural so each mora is distinct, without breaking prosody.
   utterance.rate = 0.9;
   utterance.pitch = 1.0;
   window.speechSynthesis.speak(utterance);
 }
 
-export function speakJapanese(text: string): void {
-  if (!text || typeof window === "undefined") return;
-  stopActiveAudio();
-
-  const audio = new Audio(`/api/tts?text=${encodeURIComponent(text)}`);
+function playChunkSequence(chunks: string[], onError: () => void): void {
+  const audio = new Audio();
   audio.preload = "auto";
-  activeAudio = audio;
+  const session = { audio, cancelled: false };
+  activePlayback = session;
 
+  let index = 0;
   let fellBack = false;
-  const fallback = () => {
-    if (fellBack) return;
+
+  const fail = () => {
+    if (fellBack || session.cancelled) return;
     fellBack = true;
-    if (activeAudio === audio) activeAudio = null;
-    speakWithSynthesis(text);
+    if (activePlayback === session) activePlayback = null;
+    onError();
   };
 
-  audio.addEventListener("error", fallback, { once: true });
-  audio.addEventListener(
-    "ended",
-    () => {
-      if (activeAudio === audio) activeAudio = null;
-    },
-    { once: true },
-  );
+  const playNext = () => {
+    if (session.cancelled) return;
+    if (index >= chunks.length) {
+      if (activePlayback === session) activePlayback = null;
+      return;
+    }
+    audio.src = translateTtsUrl(chunks[index], index, chunks.length);
+    index += 1;
+    const result = audio.play();
+    if (result && typeof result.then === "function") {
+      result.catch(fail);
+    }
+  };
 
-  const playResult = audio.play();
-  if (playResult && typeof playResult.then === "function") {
-    playResult.catch(fallback);
-  }
+  audio.addEventListener("ended", playNext);
+  audio.addEventListener("error", fail);
+
+  playNext();
+}
+
+export function speakJapanese(text: string): void {
+  if (!text || typeof window === "undefined") return;
+  stopActivePlayback();
+
+  const chunks = chunkJapanese(text);
+  playChunkSequence(chunks, () => speakWithSynthesis(text));
 }
 
 export function primeJapaneseVoices(): void {
